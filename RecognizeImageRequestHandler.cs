@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SimpeConsumerSMBKafka
 {
-    public class RecognizeImageRequestHandler: IRecognizeImageRequestHandler
+    public class RecognizeImageRequestHandler: IConsumer<RecognizeImageRequest>
     {
 
         public RecognizeImageRequestHandler()

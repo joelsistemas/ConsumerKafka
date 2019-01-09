@@ -39,7 +39,7 @@ namespace SimpeConsumerSMBKafka
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<RecognizeImageRequest>();
-            services.AddTransient<IRecognizeImageRequestHandler, RecognizeImageRequestHandler>();
+            services.AddTransient<RecognizeImageRequestHandler>();
 
             //Message Bus
             services.AddSingleton<IMessageBus>(svp => BuildMessageBus(svp.GetRequiredService<IHttpContextAccessor>()));
@@ -59,13 +59,20 @@ namespace SimpeConsumerSMBKafka
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Use(async (context, next) =>
+            {
+                var messageBus = app.ApplicationServices.GetService<IMessageBus>();
+
+                await next();
+            });
+
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World!");
             });
-
+            
             // Force the singleton SMB instance to be created on app start rather than when requested.
-            var messageBus = app.ApplicationServices.GetService<IMessageBus>();
+           
         }
 
         private IMessageBus BuildMessageBus(IHttpContextAccessor httpContextAccessor)
