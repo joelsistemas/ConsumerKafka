@@ -42,7 +42,7 @@ namespace SimpeConsumerSMBKafka
             services.AddTransient<RecognizeImageRequestHandler>();
 
             //Message Bus
-            services.AddSingleton<IMessageBus>(svp => BuildMessageBus(svp.GetRequiredService<IHttpContextAccessor>()));
+            services.AddSingleton<IMessageBus>(BuildMessageBus);
             services.AddSingleton<IRequestResponseBus>(svp => svp.GetService<IMessageBus>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -59,23 +59,17 @@ namespace SimpeConsumerSMBKafka
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Use(async (context, next) =>
-            {
-                var messageBus = app.ApplicationServices.GetService<IMessageBus>();
-
-                await next();
-            });
-
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World!");
             });
-            
+
             // Force the singleton SMB instance to be created on app start rather than when requested.
-           
+            // We want message to be consumed when right away when WebApi starts (more info https://stackoverflow.com/a/39006021/1906057)
+            var messageBus = app.ApplicationServices.GetService<IMessageBus>();        
         }
 
-        private IMessageBus BuildMessageBus(IHttpContextAccessor httpContextAccessor)
+        private IMessageBus BuildMessageBus(IServiceProvider serviceProvider)
         {
 
             Log.InfoFormat(CultureInfo.InvariantCulture, "Instanciando the bus");
@@ -86,7 +80,7 @@ namespace SimpeConsumerSMBKafka
                                         .Group("workers")
                                         .Instances(3)
                                         .WithSubscriber<RecognizeImageRequestHandler>())
-                                    .WithDependencyResolverAsAspNetCore(httpContextAccessor)
+                                    .WithDependencyResolverAsAspNetCore(serviceProvider)
                                     .WithSerializer(new JsonMessageSerializer())
                                     .WithProviderKafka(new KafkaMessageBusSettings(Configuration["Kafka:Brokers"]));
 
