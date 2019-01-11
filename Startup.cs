@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using SimpeConsumerSMBKafka.Services;
 using SlimMessageBus;
 using SlimMessageBus.Host.AspNetCore;
 using SlimMessageBus.Host.Config;
@@ -38,9 +39,14 @@ namespace SimpeConsumerSMBKafka
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.Add(ServiceDescriptor.Singleton<IPeopleService, PeopleService>());
+            services.AddScoped<IPeopleService, PeopleService>();
+
+            services.AddHttpClient();
+
             services.AddTransient<RecognizeImageRequest>();
             services.AddTransient<RecognizeImageRequestHandler>();
-
+            
             //Message Bus
             services.AddSingleton<IMessageBus>(BuildMessageBus);
             services.AddSingleton<IRequestResponseBus>(svp => svp.GetService<IMessageBus>());
