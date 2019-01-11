@@ -40,7 +40,7 @@ namespace SimpeConsumerSMBKafka
         public void ConfigureServices(IServiceCollection services)
         {
             //services.Add(ServiceDescriptor.Singleton<IPeopleService, PeopleService>());
-            services.AddScoped<IPeopleService, PeopleService>();
+            services.AddTransient<IPeopleService, PeopleService>();
 
             services.AddHttpClient();
 
