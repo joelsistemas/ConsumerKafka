@@ -44,7 +44,6 @@ namespace SimpeConsumerSMBKafka
 
             services.AddHttpClient();
 
-            services.AddTransient<RecognizeImageRequest>();
             services.AddTransient<RecognizeImageRequestHandler>();
             
             //Message Bus
